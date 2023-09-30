@@ -1,3 +1,5 @@
+# Spring Testing Framework
+
 ## Unit test class support by Spring TestingFramework
 Spring Testing Framework provides few helpful mocked class(General Purpose Test Util class) that can be used in unit testing.
 * `MockEnvironment
@@ -5,3 +7,10 @@ Spring Testing Framework provides few helpful mocked class(General Purpose Test 
   * See `DbConfigTest` for example.
 * `ReflectionTestUtils` can be used to set non public field of object, set the dependency as well.
   *  See `DbConfigTestUsingReflectionTestUtils`
+
+Apart from General Purpose Test Util classes Spring provides MVC related general purpose Test util classes. We will see that in while.
+
+## Spring Test Context Initialization
+
+* Using `TestPropertySource`
+  
