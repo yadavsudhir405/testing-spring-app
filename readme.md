@@ -15,8 +15,14 @@ Apart from General Purpose Test Util classes Spring provides MVC related general
 * Using `TestPropertySource`
   TestPropertySource can be configured by following ways:
   - Inline, Key and values pair can be passed inline like below 
-    ```@TestPropertySource(properties = {"db.username=childUsername", "db.password=childPassword"}) ```
-  -  From property file like below ```@TestPropertySource(location=""")```
-    - location accepts string specifying path.
-      - File Resolutions
-        * If nothing is passed, then file gets searched from the location where TestFile is present and 
+    ```java 
+    @TestPropertySource(properties = {"db.username=childUsername", "db.password=childPassword"}) 
+    ```
+  -  From property file like below 
+     ```java
+            @TestPropertySource(locations="");
+      ``` 
+     -  File Resolution
+       - When nothing is passed, directory => Test file location and file name => Test file name
+       - It can look for file from classpath directory. Like this `classpath: db.properties`
+       - It can look for file from other location as well like this `file: ~/db.properties`
