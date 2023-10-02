@@ -13,7 +13,7 @@ Apart from General Purpose Test Util classes Spring provides MVC related general
 ## Spring Test Context Initialization
 
 * Using `TestPropertySource`
-  TestPropertySource can be configured ==by following ways==:
+  TestPropertySource can be configured by following ways:
   - Inline, Key and values pair can be passed inline like below 
     ```@TestPropertySource(properties = {"db.username=childUsername", "db.password=childPassword"}) ```
   -  From property file like below ```@TestPropertySource(location=""")```
