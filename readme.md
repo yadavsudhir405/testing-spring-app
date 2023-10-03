@@ -22,7 +22,18 @@ Apart from General Purpose Test Util classes Spring provides MVC related general
      ```java
             @TestPropertySource(locations="");
       ``` 
-     -  File Resolution
-       - When nothing is passed, directory => Test file location and file name => Test file name
-       - It can look for file from classpath directory. Like this `classpath: db.properties`
-       - It can look for file from other location as well like this `file: ~/db.properties`
+  * File Resolution
+    - When nothing is passed, directory => Test file location and file name => Test file name
+    - It can look for file from classpath directory. Like this `classpath: db.properties`
+    - It can look for file from other location as well like this `file: ~/db.properties`
+* Using `Profile`
+    Create a configuration class annotate that with `@Profile` and then to use it in Testing just annotate test file with `@ActiveProfile`
+    Whenever Active Profile changes, Spring reloads the context with respective configuration specified in Profile. For Example, If a Test class
+    having ActiveProfile for dev then Test loads dev configuration and run the test. If a there is Nested test inside the same test class, then
+    previously loaded configuration gets unloaded and Spring adds new profile related configuration.
+
+   `@NestedTestConfiguration` accepts argument either inherit(default) or override mode. Override mode clears all configuration
+    coming from outer test class. Nested test class having`@NestedTestConfiguration` with override mode must specify new configuration
+    with which Test will run. If no configuration is passed then this is like running test without any spring context initialized.
+
+  Refer `LoadConfigWithProfileTest` to see example
