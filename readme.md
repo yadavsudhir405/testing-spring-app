@@ -38,3 +38,4 @@ Apart from General Purpose Test Util classes Spring provides MVC related general
     with which Test will run. If no configuration is passed then this is like running test without any spring context initialized.
 
   Refer `LoadConfigWithProfileTest` to see example
+* Using `contextInitializer`
