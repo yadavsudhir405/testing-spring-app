@@ -19,13 +19,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 //@SpringJUnitConfig(inheritLocations = false) with this test will fail OR @TestPropertySource(inheritLocation = false) OR @TestPropertySource(inheritLocation = false)
+@TestPropertySource(locations = "classpath:db.test1.properties")
 public class ContextConfigurationViaInheritancePropertySource extends BaseTestConfigWithPropertyResource{
 
     @Test
     void test(@Autowired DbConfigProperty dbConfigProperty) {
-        assertEquals("testUrl", dbConfigProperty.getUrl());
-        assertEquals("testUsername", dbConfigProperty.getUsername());
-        assertEquals("testPassword", dbConfigProperty.getPassword());
+        assertEquals("test1Url", dbConfigProperty.getUrl()); // From current test property source
+        assertEquals("test1Username", dbConfigProperty.getUsername());// From current test property source
+        assertEquals("testPassword", dbConfigProperty.getPassword()); // From inherited properties
     }
 }
 
