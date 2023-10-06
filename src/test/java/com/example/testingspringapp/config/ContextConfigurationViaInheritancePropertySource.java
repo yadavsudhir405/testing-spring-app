@@ -19,7 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 //@SpringJUnitConfig(inheritLocations = false) with this test will fail OR @TestPropertySource(inheritLocation = false) OR @TestPropertySource(inheritLocation = false)
-@TestPropertySource(locations = "classpath:db.test1.properties", inheritLocations = false) // do not inherit properties coming from super class instead consider the one given currently
+//@TestPropertySource(locations = "classpath:db.test1.properties", inheritLocations = false) // do not inherit properties coming from super class instead consider the one given currently
+@TestPropertySource(locations = "classpath:db.test1.properties") // Properties coming from Super class gets merged with the once in current. url, username also coming from super class  and present in current property
+// source as well so url and username gets overridden. However, password not present in current property source so it gets inherited from super class Property Source
 public class ContextConfigurationViaInheritancePropertySource extends BaseTestConfigWithPropertyResource{
 
     @Test
