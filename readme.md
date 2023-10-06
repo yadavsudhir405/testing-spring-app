@@ -40,4 +40,12 @@ Apart from General Purpose Test Util classes Spring provides MVC related general
   Refer `LoadConfigWithProfileTest` to see example
 * Using `contextInitializer` 
     Refer `DataSourceProviderWithContextInitializer`
-* Using Inheritance
+* Using Inheritance:
+  * Test class inherit context configuration from Super or Nested class's configuration. However, if TestClass contains some bean or property
+   with the same name then bean or property coming from super class gets overridden by current Test class configuration.
+   ```java
+            @SpringJunitConfig(inheritLocations = false) // Don't inherit configuration either through property sources or component class
+  ```
+    ```java
+          @SpringJunitConig(inheritInitializers = false) // does the same thing but apply only for ContextInitializer classes
+     ```
