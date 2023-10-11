@@ -38,7 +38,7 @@ public class TenantDatabaseConfig implements InitializingBean {
         final Flyway flyway = Flyway.configure()
                 .dataSource(dataSource)
                 .baselineOnMigrate(true)
-                .locations("classpath:db/migrations/tenants")
+                .locations("classpath:db/migrations/tenant")
                 .load();
         flyway.repair();
         flyway.migrate();
