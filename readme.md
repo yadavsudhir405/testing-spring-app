@@ -49,3 +49,35 @@ Apart from General Purpose Test Util classes Spring provides MVC related general
     ```java
           @SpringJunitConig(inheritInitializers = false) // does the same thing but apply only for ContextInitializer classes
      ```
+
+
+
+# Flyway:
+<p>
+Flyway can be configured in Spring boot app with two ways: 1) auto configuration 2) Manual configuration using Flyway API.
+AutoConfiguration is the one that gets used  most of time.However, in situation like where multiple datasources are available, Manual configuration is needed.
+</p>
+
+### Auto Configuration:
+ Just need to add few properties to `application.properties`
+ ```
+ spring.flyway.enabled=true
+spring.flyway.baseline-on-migrate=true
+spring.flyway.locations=classpath:db/migration
+ ```
+### Manual Configuration:
+ - Step 1: Get Flyway instance
+ - Step 2: call migrate on flyway instance
+ ```java
+         final Flyway flyway = Flyway.configure().dataSource(dataSource)
+                .locations(GLOBAL_MIGRATION_SCRIPTS_PATH)
+                .baselineOnMigrate(true)
+                .outOfOrder(false)
+                .load();
+        flyway.repair();
+        return flyway;
+   ```
+ When there are multiple datasource
+
+### File Naming Convention:
+
