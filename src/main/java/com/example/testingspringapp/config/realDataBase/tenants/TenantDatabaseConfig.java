@@ -8,17 +8,44 @@ import com.zaxxer.hikari.HikariDataSource;
 import lombok.RequiredArgsConstructor;
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionManager;
 
 import javax.sql.DataSource;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @RequiredArgsConstructor
 public class TenantDatabaseConfig implements InitializingBean {
    private final DbLocRepository dbLocRepository;
    private final TenantDatabaseHikariConfig tenantDatabaseHikariConfig;
    private final TenantAwareDatasource tenantAwareDatasource;
 
+
+   @Bean
+   public DataSource tenantDatasource() {
+       return this.tenantAwareDatasource;
+   }
+
+  @Bean
+  NamedParameterJdbcOperations namedParameterJdbcOperations(@Qualifier("tenantDatasource") DataSource dataSource) {
+        return new NamedParameterJdbcTemplate(dataSource);
+   }
+   @Bean
+   public JdbcTemplate tenantJdbcTemplate(@Qualifier("tenantDatasource") DataSource dataSource) {
+       return new JdbcTemplate(dataSource);
+   }
+
+   @Bean
+   public TransactionManager transactionManager(@Qualifier("tenantDatasource") DataSource dataSource) {
+       return new DataSourceTransactionManager(dataSource);
+   }
 
     @Override
     public void afterPropertiesSet() throws Exception {

@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 
 @SpringBootApplication
 @PropertySource("classpath:db.properties") // This initialize Environment class with properties defined in it
@@ -24,18 +25,18 @@ public class TestingSpringAppApplication {
     @Bean
     CommandLineRunner commandLineRunner(DbConfig dbConfig) {
         return args -> {
-            log.info("Url: {}", dbConfig.getUrl());
-            log.info("Username: {}", dbConfig.getUsername());
-            log.info("Password: {}", dbConfig.getPassword());
+            log.debug("Url: {}", dbConfig.getUrl());
+            log.debug("Username: {}", dbConfig.getUsername());
+            log.debug("Password: {}", dbConfig.getPassword());
         };
     }
 
     @Bean
     CommandLineRunner commandLineDbConfigProperty(DbConfigProperty dbConfigProperty) {
         return args -> {
-            log.info("DbConfigProperty Url: {}", dbConfigProperty.getUrl());
-            log.info("DbConfigProperty Username: {}", dbConfigProperty.getUsername());
-            log.info("DbConfigProperty Password: {}", dbConfigProperty.getPassword());
+            log.debug("DbConfigProperty Url: {}", dbConfigProperty.getUrl());
+            log.debug("DbConfigProperty Username: {}", dbConfigProperty.getUsername());
+            log.debug("DbConfigProperty Password: {}", dbConfigProperty.getPassword());
         };
     }
 }
