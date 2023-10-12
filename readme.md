@@ -81,3 +81,12 @@ spring.flyway.locations=classpath:db/migration
 
 ### File Naming Convention:
 
+-  For Version migration file : ![img.png](img.png)
+-  For Undo migration file:
+![img_1.png](img_1.png)
+- For Repeatable migration file:
+- ![img_2.png](img_2.png)
+
+# Configure Multiple datasource in Spring Data Jdbc:
+
+
