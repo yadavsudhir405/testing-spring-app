@@ -9,6 +9,7 @@ import com.example.testingspringapp.repository.AuthorRepository;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -35,7 +36,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -53,14 +53,7 @@ public class AuthorControllerIT {
             .acceptLicense();
 
 
-    MockMvc mockMvc;
-
-    @BeforeEach
-    void setupMockMvc(@Autowired WebApplicationContext webApplicationContext) {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-    }
-
-    private static void setupDb() throws SQLException {
+     private static void setupDb() throws SQLException {
          runQuery("CREATE DATABASE " + GLOBAL_DATABASE);
          runQuery("CREATE DATABASE " + TENANT_DATABASE);
     }
@@ -127,21 +120,20 @@ public class AuthorControllerIT {
 
     @DynamicPropertySource
     public static void overrideDataSourceProperties(DynamicPropertyRegistry registry) throws SQLException {
-        if(!IS_DB_INITIALIZED) {
+        if (!IS_DB_INITIALIZED) {
             setupDb();
             setupTenantToGlobalDataBase();
-
-            registry.add("spring.global.datasource.jdbcUrl",() -> mssqlServerContainer.getJdbcUrl()+";databaseName="+GLOBAL_DATABASE);
-            registry.add("spring.global.datasource.username",() -> mssqlServerContainer.getUsername());
-            registry.add("spring.global.datasource.password",() -> mssqlServerContainer.getPassword());
-
-            registry.add("spring.tenant.datasource.jdbcUrl",() -> mssqlServerContainer.getJdbcUrl()+";databaseName="+TENANT_DATABASE);
-            registry.add("spring.tenant.datasource.username",() -> mssqlServerContainer.getUsername());
-            registry.add("spring.tenant.datasource.password",() -> mssqlServerContainer.getPassword());
-
             IS_DB_INITIALIZED = true;
-
         }
+
+        registry.add("spring.global.datasource.jdbcUrl", () -> mssqlServerContainer.getJdbcUrl() + ";databaseName=" + GLOBAL_DATABASE);
+        registry.add("spring.global.datasource.username", () -> mssqlServerContainer.getUsername());
+        registry.add("spring.global.datasource.password", () -> mssqlServerContainer.getPassword());
+
+        registry.add("spring.tenant.datasource.jdbcUrl", () -> mssqlServerContainer.getJdbcUrl() + ";databaseName=" + TENANT_DATABASE);
+        registry.add("spring.tenant.datasource.username", () -> mssqlServerContainer.getUsername());
+        registry.add("spring.tenant.datasource.password", () -> mssqlServerContainer.getPassword());
+
     }
 
 
@@ -168,20 +160,40 @@ public class AuthorControllerIT {
         assertEquals(currentSize + 1 , authorRepository.findAll().size());
     }
 
-    @Test
-    void shouldSaveNewAuthor(@Autowired AuthorRepository authorRepository) throws Exception {
-        final String requestBody = """
+
+    @Nested
+    @SpringJUnitWebConfig(WebTest.WebConfig.class)
+    class WebTest {
+
+        MockMvc mockMvc;
+
+        @BeforeEach
+        void setupMockMvc(@Autowired WebApplicationContext webApplicationContext) {
+            this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        }
+
+        @Test
+        void shouldSaveNewAuthor(@Autowired AuthorRepository authorRepository) throws Exception {
+            final String requestBody = """
                     {
                             "name": "Jazz",
                             "age": 16
                     }
                     """;
-        this.mockMvc.perform(post("/author").param("tenant", "Tenant1").contentType(APPLICATION_JSON).content(requestBody))
-                .andExpectAll(status().isOk());
-        TenantContext.setTenant(TENANT_DATABASE);
+            this.mockMvc.perform(post("/author").param("tenant", "Tenant1").contentType(APPLICATION_JSON).content(requestBody))
+                    .andExpectAll(status().isOk());
+            TenantContext.setTenant(TENANT_DATABASE);
 
-        final Optional<Author> authorByName = authorRepository.findByName("Jazz");
-        assertTrue(authorByName.isPresent());
+            final Optional<Author> authorByName = authorRepository.findByName("Jazz");
+            assertTrue(authorByName.isPresent());
+        }
+
+        @Configuration
+        @EnableWebMvc
+        static class WebConfig {
+
+        }
+
     }
 
 
