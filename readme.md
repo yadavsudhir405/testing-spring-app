@@ -87,6 +87,58 @@ spring.flyway.locations=classpath:db/migration
 - For Repeatable migration file:
 - ![img_2.png](img_2.png)
 
-# Configure Multiple datasource in Spring Data Jdbc:
+# TestContainers
+
+ ### Required dependencies:
+
+Common apart from Junit-jupitor. one for test-container and other is for integration with Jupitor
+```groovy
+testImplementation "org.testcontainers:testcontainers:1.19.1"
+testImplementation "org.testcontainers:junit-jupiter:1.19.1"
+```
+Apart from this, TestContainer needs container specific module. Test container has different module for different type of container.
+For example: MSSql module, mysql module,oracleDb module etc.Currently, we are adding MSSql related module because we want MSSQL container.
+ ```groovy
+testImplementation 'org.testcontainers:mssqlserver'
+ ```
+
+### Usage:
+ Two primary annotation is needed `@Testcontainers` at class level and `@Container`
+ @TestContainers hints Junit-Jupitor to looks for all variable having `@Container` and manage(create and destroy)them.
+
+```If Variables not static then for each test containers gets created and destroyed```
+
+```java
+@Testcontainers
+public class AuthorControllerIT {
+
+    @Container
+    MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-latest")
+            .acceptLicense();
+
+    @Test
+    void test1() {
+        System.out.println(mssqlServerContainer.getJdbcUrl());
+    }
+    
+    @Test
+    void test2() {
+        System.out.println(mssqlServerContainer.getJdbcUrl());
+    }
+}
+
+```
+
+In the above example ```mssqlServerContainer``` is not static. Hence, two different container gets created and destroyed for test1 and test2 which is not ideal for common scenario.
+Ideally, we would like to have one container gets created before any tests within a test suite(TestClass) and use the same container for all test cases. This will reduce
+overall test execution runtime because container creation take time.
+
+Testcontainers has given a solution for this. Just mark the variable as ```static```. This way same container gets used for all tests within a test file.
+
+```java
+@Container
+static MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-latest")
+            .acceptLicense();
+```
 
 

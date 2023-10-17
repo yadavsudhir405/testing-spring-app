@@ -1,13 +1,16 @@
 package com.example.testingspringapp.config.realDataBase.global;
 
 
+import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@DependsOn("globalDatabaseFlyway")
 public class DbLocRepository {
 
     private static final String GET_ALL_ACTIVE_TENANTS_DB_QUERY = """
