@@ -7,6 +7,7 @@ import com.example.testingspringapp.repository.BookRepository;
 import com.example.testingspringapp.service.BookApiService;
 import com.example.testingspringapp.service.IBookApiService;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.test.JobLauncherTestUtils;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @SpringJUnitConfig(classes = {LoadBookBatchTest.BatchTestConfig.class, LoadBookBatchTest.OverrideConfig.class})
 @SpringBatchTest()
@@ -38,10 +40,11 @@ public class LoadBookBatchTest extends AbstractTest {
 
 
     @Test
-    void shouldLaunchJobAndInsertBook() throws Exception {
+    void shouldLaunchJobAndInsertBook(@Autowired IBookApiService bookApiService) throws Exception {
         TenantContext.setTenant(TENANT);
         this.bookRepository.deleteAll();
 
+        when(bookApiService.getBooks()).thenReturn(List.of(new Book(null, "abc", "xyz", BigDecimal.valueOf(89.90))));
         final JobParametersBuilder jobParametersBuilder = new JobParametersBuilder()
                 .addString("tenant", TENANT)
                 .addLocalDateTime("time", LocalDateTime.now());
@@ -78,9 +81,7 @@ public class LoadBookBatchTest extends AbstractTest {
     static class OverrideConfig {
         @Bean
         IBookApiService bookApiService() {
-            return () -> List.of(
-                    new Book(null, "Test", "test", BigDecimal.valueOf(89.56))
-            );
+           return Mockito.mock(IBookApiService.class);
         }
     }
 }
