@@ -40,11 +40,10 @@ public class LoadBookBatchTest extends AbstractTest {
 
 
     @Test
-    void shouldLaunchJobAndInsertBook(@Autowired IBookApiService bookApiService) throws Exception {
+    void shouldLaunchJobAndInsertBook() throws Exception {
         TenantContext.setTenant(TENANT);
         this.bookRepository.deleteAll();
 
-        when(bookApiService.getBooks()).thenReturn(List.of(new Book(null, "abc", "xyz", BigDecimal.valueOf(89.90))));
         final JobParametersBuilder jobParametersBuilder = new JobParametersBuilder()
                 .addString("tenant", TENANT)
                 .addLocalDateTime("time", LocalDateTime.now());
@@ -57,7 +56,18 @@ public class LoadBookBatchTest extends AbstractTest {
         TenantContext.clearTenant();
     }
 
+    @Test
+    void launchIndividualStep() {
+        TenantContext.setTenant(TENANT);
+        this.bookRepository.deleteAll();
+        assertEquals(0, this.bookRepository.count());
 
+        final JobExecution jobExecution = this.jobLauncherTestUtils.launchStep("LoadBookStep");
+
+        assertEquals("COMPLETED", jobExecution.getExitStatus().getExitCode());
+        assertEquals(1, this.bookRepository.count());
+        TenantContext.clearTenant();
+    }
 
     @Configuration
     @ComponentScan(basePackages = {
@@ -81,7 +91,7 @@ public class LoadBookBatchTest extends AbstractTest {
     static class OverrideConfig {
         @Bean
         IBookApiService bookApiService() {
-           return Mockito.mock(IBookApiService.class);
+           return () -> List.of(new Book(null, "ABC", "XYZ", BigDecimal.valueOf(234.56)));
         }
     }
 }
