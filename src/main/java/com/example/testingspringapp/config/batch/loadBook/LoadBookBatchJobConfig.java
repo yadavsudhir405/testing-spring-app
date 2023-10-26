@@ -7,6 +7,7 @@ import com.example.testingspringapp.config.realDataBase.tenants.TenantAwareDatas
 import com.example.testingspringapp.config.realDataBase.tenants.TenantContext;
 import com.example.testingspringapp.entity.Book;
 import com.example.testingspringapp.service.BookDataProvider;
+import com.example.testingspringapp.service.IBookApiService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
@@ -58,7 +59,7 @@ public class LoadBookBatchJobConfig {
 
     @Bean
     @StepScope
-    public SimpleItemReader<Book> bookItemReader(BookApiService bookApiService) {
+    public SimpleItemReader<Book> bookItemReader(IBookApiService bookApiService) {
         return new SimpleItemReader<>("bookItemReader",new BookDataProvider(bookApiService));
     }
 

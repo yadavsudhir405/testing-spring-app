@@ -7,8 +7,9 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
-public class BookApiService {
+public class BookApiService implements IBookApiService {
     // method that returns list of books
+    @Override
     public List<Book> getBooks() {
         return List.of(
                 new Book(null, "The Lord of the Rings", "J. R. R. Tolkien", BigDecimal.valueOf(9.99)),

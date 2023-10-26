@@ -11,7 +11,7 @@ import java.util.List;
 @Slf4j
 public class BookDataProvider implements StepDataProvider<Book> {
 
-    private final BookApiService bookApiService;
+    private final IBookApiService bookApiService;
 
     @Override
     public List<Book> getData() {
