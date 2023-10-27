@@ -7,7 +7,6 @@ import com.example.testingspringapp.repository.BookRepository;
 import com.example.testingspringapp.service.BookApiService;
 import com.example.testingspringapp.service.IBookApiService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.test.JobLauncherTestUtils;
@@ -24,10 +23,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 
 @SpringJUnitConfig(classes = {LoadBookBatchTest.BatchTestConfig.class, LoadBookBatchTest.OverrideConfig.class})
-@SpringBatchTest()
+@SpringBatchTest() // This adds or autowired required spring batch test util classes such JobLauncherTestUtils,JobRepositoryTestUtils
 public class LoadBookBatchTest extends AbstractTest {
 
     private static final String TENANT = "Tenant1";
@@ -87,7 +85,7 @@ public class LoadBookBatchTest extends AbstractTest {
     // Below Annotation @TestConfiguration overrides configuration done be uper BatchtestConfig. To be more precise, BatchTestConfig
     // has component scan for service package that will instantiate BookApiService instance of IBookApiService with 3 books.
     // Below configuration overrides BookApiService with custom IBookApiService.
-    @TestConfiguration
+    @TestConfiguration // can be used to override i.e replace existing scanned beans with custom beans
     static class OverrideConfig {
         @Bean
         IBookApiService bookApiService() {
