@@ -141,4 +141,82 @@ static MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr
             .acceptLicense();
 ```
 
+This way container gets created before tests starts running and gets terminated once all tests are done. Life cycle of container is 
+managed by TestContainer's annotations ```@TestContainers```
+
+### Singleton Pattern for Container
+ ```TestContainer``` and ```@Container``` works great since it starts and stop the container automatically. However, what if another test suite(TestClass) needs same container.
+ A trivial approach could be do the same thing like annotated class with ```@TestContainers``` and declare annotated container variable with` @Container` . However, this approach will increase overall test run time because 
+ for each test suite different container will to started and stopped. It will be great if we can share or reuse the container between different test suites. This will reduce  overall test run time.
+`The pattern of reusing the existing container is called singelton pattern for container ` because same container gets used by multiple test suite.
+
+
+#### How to achieve this:
+
+- Create Abstract Test class that has containers, let this class manage lifecycle of container
+- All TestClass just need to extend this class.
+
+```java
+
+public abstract class AbstractTest {
+   private static MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-latest")
+           .acceptLicense();
+   
+   @BeforeAll
+   static void startContainer() {
+       mssqlServerContainer.start();
+   }
+   
+   @AfterAll
+    static void tearDown() {
+       mssqlServerContainer.stop();
+   }
+
+    @DynamicPropertySource
+    static void overrideDataSourceProperties(DynamicPropertyRegistry registry) throws SQLException {
+            // Access and set container instance related data 
+            registry.add("spring.global.datasource.jdbcUrl", () -> mssqlServerContainer.getJdbcUrl());
+            registry.add("spring.global.datasource.username", () -> mssqlServerContainer.getUsername());
+            registry.add("spring.global.datasource.password", () -> mssqlServerContainer.getPassword());
+        }
+}
+
+```
+
+#### Optimize test run time further
+
+It's great that different test suites using the same container.However, during local development and testing it is quite obvious 
+to add more tests to the suite and run them. Everytime a testsuite run, new container gets started and stopped and starting new container
+takes time. It will be great to reuse the same existing container. TestContainer provides a way to do this:
+
+- Add `testcontainers.reuse.enable=true` to  `~/.testcontainers.properties`
+- use `withResue(true)` while creating container instance.
+    ```java
+         private static MSSQLServerContainer mssqlServerContainer = new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2022-latest")
+                                                                     .acceptLicense().withReuse(true)
+    ```
+- Make sure manual container stop code is removed.
+-  Needs to be careful while writing test(doing assertion) as state is persisted.
+
+
+# Spring Batch
+
+### Configuration
+ - Add appropriate sql migration script to create batch related tables
+ - Create a batch configuration class and annotate that with `@EnableBatchProcessing`
+ - Spring Batch looks for a bean with name `datasource` and `platformTransactionManager` and use them for batch processing.If these beans are not present then
+   Spring Batch creates them. or If those bean are already there but with different name then we can tell Spring Batch to use those beans by using this way:
+   ```java
+     @EnableBatchProcessing(dataSourceRef = "globalDataSource", transactionManagerRef = "globalTransactionManager")
+   ```
+   In above example, datasource bean name is `globalDataSource` and platformTransactionManager bean name is `globalTransactionManager`
+
+
+### Testing
+ - Two important annotations `@SpringJunitConfig` and `@SpringBatchTest` are needed to test Spring Batch related code.
+ - `@SpringJunitConfig` is needed to load Spring Context and `@SpringBatchTest` is needed to load Spring Batch related configuration. `@SpringBatchTest` is meta annotation
+   which internally contains `@EnableBatchProcessing` and `@AutoConfigureTestDatabase` annotation. This annotations adds or autowired few beans like `JobLauncherTestUtil` and `JobRepositoryTestUtils` that are needed for batch processing.
+ - `JobLauncherTestUtil` is used to launch the job and `JobRepositoryTestUtils` is used to clean up the batch related tables.
+ - If configuration used in @SpringJunitConfig contains a Job bean then that job gets executed automatically by JobLauncherTestUtil's launch method. If there are multiple jobs then we can specify which job to run by using ```java  jobLauncherTestUtil.set(job)``` and then call jobLauncherTestUtil.launch(jobParameter) method.
+ - Single Step can be tested by ```java jobLauncherTestUtil.launchStep(stepName, jobParameter)``` method.
 
